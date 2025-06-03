@@ -4,6 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router';
+import { CssBaseline, ThemeProvider } from "@mui/material"
+import theme from './theme';
 
 const root = ReactDOM.createRoot(
   document.getElementById('content') as HTMLElement
@@ -11,7 +13,10 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <ThemeProvider theme={theme}>
+        <CssBaseline/> {/* mui에서 기본적으로 제공하는 css라인 */}
+        <App />
+      </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

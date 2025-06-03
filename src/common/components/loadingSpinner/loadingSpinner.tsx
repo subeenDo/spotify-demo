@@ -1,5 +1,5 @@
 import React from 'react';
-import './loadingSpinner.css'; // 스타일 파일 따로 분리
+import './loadingSpinner.css'; 
 
 const LoadingSpinner = () => {
   return (
