@@ -2,9 +2,9 @@ import { Box, styled, Typography } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import { NavLink, Outlet } from "react-router";
-import LibraryHeader from "../common/components/LibraryHeader";
-import Library from "../common/components/Library";
-
+import LibraryHeader from "./components/LibraryHeader";
+import Library from "./components/Library";
+import NavBar from "./components/NavBar";
 
 const Layout = styled("div")({
     display: "flex",
@@ -80,7 +80,11 @@ const AppLayout = () => {
                   <Library/>
                 </ContentBox>
             </Sidebar>
-            <Outlet />
+            <ContentBox>
+                <NavBar/>
+                <Outlet />
+            </ContentBox>
+
         </Layout>
     );
 };
