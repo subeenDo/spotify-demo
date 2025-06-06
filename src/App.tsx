@@ -1,7 +1,8 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import './App.css';
 import { Route, Routes } from 'react-router';
 import LoadingSpinner from './common/components/loadingSpinner/loadingSpinner';
+import useExchangeToken from './hooks/useExchangeToken';
 
 const AppLayout = React.lazy(() => import('./layout/AppLayout'));
 const HomePage = React.lazy(() => import('./pages/HomePage/HomePage'));
@@ -18,6 +19,17 @@ const PlayListPage = React.lazy(() => import('./pages/PlayListPage/PlayListPage'
 // 4-1. 모바일 플레이리스트 페이지 /playlist
 
 function App() {
+
+  const urlParams = new URLSearchParams(window.location.search);
+  let code = urlParams.get('code');
+  let codeVerifier = localStorage.getItem('code_verifier');
+  const {mutate : exchangeToken} = useExchangeToken()
+  
+  useEffect(()=>{
+    if(code && codeVerifier){
+      exchangeToken({code, codeVerifier})
+    }
+  },[code, codeVerifier, exchangeToken])
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
