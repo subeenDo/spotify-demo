@@ -10,7 +10,24 @@ const Layout = styled("div")({
     display: "flex",
     height: "100vh",
     padding: "8px",
+    gap: "8px",
+    overflowX: "hidden",
+
+    "&::-webkit-scrollbar": {
+    width: "8px",
+    },
+    "&::-webkit-scrollbar-track": {
+        background: "transparent",
+    },
+    "&::-webkit-scrollbar-thumb": {
+        backgroundColor: "rgba(255,255,255,0.2)",
+        borderRadius: "4px",
+    },
+    "&::-webkit-scrollbar-thumb:hover": {
+        backgroundColor: "rgba(255,255,255,0.4)",
+    },
 });
+
 
 const Sidebar = styled("div")(({ theme }) => ({
     width: "331px",
