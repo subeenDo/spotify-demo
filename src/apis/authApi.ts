@@ -39,6 +39,8 @@ export const exchangeToken = async ({
     code: string;
     codeVerifier: string;
   }): Promise<ExchangeTokenResponse> => {
+    
+    
     try {
       const url = "https://accounts.spotify.com/api/token";
   
