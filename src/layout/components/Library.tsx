@@ -31,7 +31,7 @@ const Library = () => {
     isFetchingNextPage,
     isLoading,
     error,
-  } = useGetCurrentUserPlaylists({ limit: 5, offset: 0 });
+  } = useGetCurrentUserPlaylists({ limit: 10, offset: 0 });
   const {data:user} = useGetCurrentUserProfile();
   useEffect(()=>{
     if(inView && hasNextPage && !isFetchingNextPage){

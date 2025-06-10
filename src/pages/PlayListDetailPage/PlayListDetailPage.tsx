@@ -51,7 +51,7 @@ function PlayListDetailPage() {
   return (
     <PlaylistHeader container spacing={7}>
       <ImageGrid item sm={12} md={2}>
-        {playlist.images?.length > 0 ? (
+        {Array.isArray(playlist.images) && playlist.images.length > 0 ? (
           <AlbumImage
             src={playlist.images[0].url}
             alt="playlist_cover.jpg"
@@ -62,6 +62,7 @@ function PlayListDetailPage() {
           </DefaultImage>
         )}
       </ImageGrid>
+
       <Grid item sm={12} md={10}>
         <Box>
           <ResponsiveTypography variant="h1" color="white">
