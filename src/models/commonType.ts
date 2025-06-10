@@ -9,8 +9,6 @@ export interface Image {
 }
 
 
-
-
 export interface Restriction {
     reason : string;
 }
@@ -32,4 +30,18 @@ export interface Owner {
     id ?: string;
     type ?: string;
     uri ?: string;
+}
+
+export interface AddedBy {
+    external_urls:ExternalUrls;
+    href?:string;
+    id?:string;
+    type?:string;
+    uri?:string;
+}
+
+export interface ExternalIds {
+    isrc?:string;
+    ean?:string;
+    upc?:string;
 }
