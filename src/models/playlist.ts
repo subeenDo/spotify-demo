@@ -47,7 +47,7 @@ export interface Playlist extends BasePlaylist {
 
 export interface PlaylistTrack {
     added_at?:string|null;
-    added_by?:AddedBy;
+    added_by?:AddedBy|null;
     is_local?:boolean;
     track?:Track | Episode;
 }
@@ -77,9 +77,10 @@ export interface Track {
     uri?:string;
     is_local?:boolean;
 }
-
+   
 export interface Episode {
-
+    id?: string;
+    name:string;
     audio_preview_url:string|null;
     description:string;
     html_description:string;
@@ -87,21 +88,20 @@ export interface Episode {
     explicit:boolean;
     external_urls?:ExternalUrls;
     href?:string;
-    id?:string;
     images?:Image[];
     is_externally_hosted:boolean;
     is_playable:boolean;
 
     language?:string;
     languages:string[];
-    name:string;
+
     release_date:string;
     release_date_precision:string;
     resume_point?:{
         fully_played?:boolean;
         resume_position_ms?:number;
     }
-    type:string;
+    type:'episode';
     uri:string;
     restrictions?:{
         reason?:string;
@@ -141,3 +141,11 @@ export interface GetPlaylistRequest {
     field?:string;
     additional_types?:string;
 }
+
+export interface GetPlaylistItemsRequest extends GetPlaylistRequest {
+    offset ?: number;
+    limit ?: number;
+}
+
+export type GetPlaylistItemsResponse = ApiResponse<PlaylistTrack>
+

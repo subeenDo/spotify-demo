@@ -1,16 +1,24 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Navigate, useParams } from 'react-router';
 import useGetPlaylist from '../../hooks/useGetPlayList';
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
-import { Grid, Typography, Box } from "@mui/material";
-import { styled } from '@mui/material/styles'; 
-import DefaultImage from '../../common/components/DefaultImage'; 
+import {
+  Grid, Typography, Box, TableHead, TableCell, TableRow, Table, TableBody
+} from "@mui/material";
+import { styled } from '@mui/material/styles';
+import DefaultImage from '../../common/components/DefaultImage';
+import useGetPlaylistItems from '../../hooks/useGetPlaylistItems';
+import DesktopPlaylistItem from './components/DesktopPlaylistItem';
+import { PAGE_LIMIT } from '../../configs/commonConfig';
 
 const PlaylistHeader = styled(Grid)({
   display: "flex",
   alignItems: "center",
   background: "linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%)",
   padding: "16px",
+  position: "sticky",
+  top: 0,
+  zIndex: 10,
 });
 
 const ImageGrid = styled(Grid)(({ theme }) => ({
@@ -38,58 +46,106 @@ const ResponsiveTypography = styled(Typography)(({ theme }) => ({
   },
 }));
 
+const ScrollContainer = styled('div')({
+  maxHeight: 'calc(100vh - 200px)',
+  overflowY: 'auto',
+  scrollbarWidth: 'none',
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
+});
+
+const StyledTable = styled(Table)({
+  borderCollapse: 'separate',
+  borderSpacing: 0,
+});
+
 function PlayListDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const observerRef = useRef<HTMLDivElement | null>(null);
+
+  const { data: playlist } = useGetPlaylist({ playlist_id: id! });
+  const {
+    data: playlistItems,
+    isLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useGetPlaylistItems({ playlist_id: id!, limit: PAGE_LIMIT, offset: 0 });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    });
+
+    if (observerRef.current) observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage]);
+
   if (!id) return <Navigate to="/" />;
-
-  const { data: playlist } = useGetPlaylist({ playlist_id: id });
-
-  if (!playlist) {
-    return <div style={{ color: 'white', padding: '16px' }}>Loading...</div>;
-  }
+  if (!playlist) return <div style={{ color: 'white', padding: '16px' }}>Loading...</div>;
 
   return (
-    <PlaylistHeader container spacing={7}>
-      <ImageGrid item sm={12} md={2}>
-        {Array.isArray(playlist.images) && playlist.images.length > 0 ? (
-          <AlbumImage
-            src={playlist.images[0].url}
-            alt="playlist_cover.jpg"
-          />
-        ) : (
-          <DefaultImage>
-            <MusicNoteIcon fontSize="large" />
-          </DefaultImage>
-        )}
-      </ImageGrid>
-
-      <Grid item sm={12} md={10}>
-        <Box>
-          <ResponsiveTypography variant="h1" color="white">
-            {playlist.name}
-          </ResponsiveTypography>
-
-          <Box display="flex" alignItems="center">
-            <img
-              src="https://i.scdn.co/image/ab67757000003b8255c25988a6ac314394d3fbf5"
-              width="20px"
-              alt="owner-profile"
-            />
-            <Typography
-              variant="subtitle1"
-              color="white"
-              ml={1}
-              fontWeight={700}
-            >
-              {playlist.owner?.display_name ?? "unknown"}
-            </Typography>
-            <Typography variant="subtitle1" color="white" ml={1}>
-              • {playlist.tracks?.total ?? 0} songs
-            </Typography>
+    <div>
+      <PlaylistHeader container spacing={7}>
+        <ImageGrid item sm={12} md={2}>
+          {playlist.images?.[0]?.url ? (
+            <AlbumImage src={playlist.images[0].url} alt="playlist_cover" />
+          ) : (
+            <DefaultImage>
+              <MusicNoteIcon fontSize="large" />
+            </DefaultImage>
+          )}
+        </ImageGrid>
+        <Grid item sm={12} md={10}>
+          <Box>
+            <ResponsiveTypography variant="h1" color="white">
+              {playlist.name}
+            </ResponsiveTypography>
+            <Box display="flex" alignItems="center">
+              <img src="https://i.scdn.co/image/ab67757000003b8255c25988a6ac314394d3fbf5" width="20px" alt="owner-profile" />
+              <Typography variant="subtitle1" color="white" ml={1} fontWeight={700}>
+                {playlist.owner?.display_name ?? "unknown"}
+              </Typography>
+              <Typography variant="subtitle1" color="white" ml={1}>
+                • {playlist.tracks?.total ?? 0} songs
+              </Typography>
+            </Box>
           </Box>
-        </Box>
-      </Grid>
-    </PlaylistHeader>
+        </Grid>
+      </PlaylistHeader>
+      {playlist ?. tracks?.total === 0 
+      ? <Typography>써치</Typography> 
+      : <ScrollContainer>
+      <StyledTable>
+        <TableHead>
+          <TableRow>
+            <TableCell>#</TableCell>
+            <TableCell>Title</TableCell>
+            <TableCell>Album</TableCell>
+            <TableCell>Date added</TableCell>
+            <TableCell>Duration</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {playlistItems?.pages.map((page, pageIndex) =>
+            page.items.map((item, itemIndex) => (
+              <DesktopPlaylistItem
+                key={pageIndex * PAGE_LIMIT + itemIndex + 1}
+                item={item}
+                index={pageIndex * PAGE_LIMIT + itemIndex + 1}
+              />
+            ))
+          )}
+        </TableBody>
+      </StyledTable>
+      <div ref={observerRef} style={{ height: '1px' }} />
+    </ScrollContainer>
+    }
+      
+    </div>
   );
 }
 

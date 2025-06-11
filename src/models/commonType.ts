@@ -33,12 +33,13 @@ export interface Owner {
 }
 
 export interface AddedBy {
-    external_urls:ExternalUrls;
+    external_urls?:ExternalUrls;
+    followers ?: Followers;
     href?:string;
     id?:string;
     type?:string;
     uri?:string;
-}
+} 
 
 export interface ExternalIds {
     isrc?:string;
