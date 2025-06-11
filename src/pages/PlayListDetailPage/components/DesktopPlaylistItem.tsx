@@ -11,9 +11,13 @@ interface DesktopPlaylistItemProps {
 const HoverableRow = styled(TableRow)(({ theme }) => ({
   '&:hover': {
     backgroundColor: theme.palette.grey[800],
+    cursor: 'pointer',
   },
-  borderBottom: 'none',
+  '& td': {
+    borderBottom: 'none',
+  },
 }));
+
 
 function formatDuration(ms: number): string {
   const minutes = Math.floor(ms / 60000);

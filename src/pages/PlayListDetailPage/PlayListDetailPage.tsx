@@ -10,6 +10,8 @@ import DefaultImage from '../../common/components/DefaultImage';
 import useGetPlaylistItems from '../../hooks/useGetPlaylistItems';
 import DesktopPlaylistItem from './components/DesktopPlaylistItem';
 import { PAGE_LIMIT } from '../../configs/commonConfig';
+import { useInView } from "react-intersection-observer";
+import LoadingSpinner from '../../common/components/loadingSpinner/loadingSpinner';
 
 const PlaylistHeader = styled(Grid)({
   display: "flex",
@@ -47,7 +49,7 @@ const ResponsiveTypography = styled(Typography)(({ theme }) => ({
 }));
 
 const ScrollContainer = styled('div')({
-  maxHeight: 'calc(100vh - 200px)',
+  maxHeight: "calc(100vh - 240px)",
   overflowY: 'auto',
   scrollbarWidth: 'none',
   '&::-webkit-scrollbar': {
@@ -63,10 +65,11 @@ const StyledTable = styled(Table)({
 function PlayListDetailPage() {
   const { id } = useParams<{ id: string }>();
   const observerRef = useRef<HTMLDivElement | null>(null);
-
+  const { ref, inView } = useInView();
   const { data: playlist } = useGetPlaylist({ playlist_id: id! });
   const {
     data: playlistItems,
+    error : playlistItemsError,
     isLoading,
     hasNextPage,
     isFetchingNextPage,
@@ -139,6 +142,7 @@ function PlayListDetailPage() {
               />
             ))
           )}
+          <div ref={ref}>{isFetchingNextPage && <LoadingSpinner /> }</div>
         </TableBody>
       </StyledTable>
       <div ref={observerRef} style={{ height: '1px' }} />
