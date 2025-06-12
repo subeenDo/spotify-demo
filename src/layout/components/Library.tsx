@@ -10,8 +10,8 @@ import { useInView } from "react-intersection-observer";
 
 const PlaylistContainer = styled("div")(({ theme }) => ({
   overflowY: "auto",
-  maxHeight: "calc(100vh - 240px)",
-  height: "100%",
+  //maxHeight: "calc(100vh - 240px)",
+  height: "calc(100dvh - 140px)", 
   "&::-webkit-scrollbar": {
     display: "none",
     msOverflowStyle: "none",

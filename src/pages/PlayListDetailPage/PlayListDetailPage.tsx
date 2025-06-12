@@ -48,8 +48,16 @@ const ResponsiveTypography = styled(Typography)(({ theme }) => ({
   },
 }));
 
-const ScrollContainer = styled('div')({
-  maxHeight: "calc(100vh - 240px)",
+const ScrollContainer = styled('div')(({ theme }) => ({
+  height: "calc(100dvh - 240px)",
+  overflow: "hidden", 
+  [theme.breakpoints.down('sm')]: {
+    height: "calc(100dvh - 160px)",
+  },
+}));
+
+const StyledTableContainer = styled('div')({
+  height: '100%',
   overflowY: 'auto',
   scrollbarWidth: 'none',
   '&::-webkit-scrollbar': {
@@ -60,6 +68,18 @@ const ScrollContainer = styled('div')({
 const StyledTable = styled(Table)({
   borderCollapse: 'separate',
   borderSpacing: 0,
+});
+
+const StyledTableBody = styled(TableBody)({
+  display: 'block',
+  overflowY: 'auto',
+  maxHeight: '100%',
+});
+
+const StyledTableRow = styled(TableRow)({
+  display: 'table',
+  tableLayout: 'fixed',
+  width: '100%',
 });
 
 function PlayListDetailPage() {
@@ -80,6 +100,13 @@ function PlayListDetailPage() {
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  
+  useEffect(() => {
+    if (!isFetchingNextPage && hasNextPage && playlistItems?.pages.length === 1) {
+      fetchNextPage();
+    }
+  }, [playlistItems, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  
 
   if (!id) return <Navigate to="/" />;
   if (!playlist) return <div style={{ color: 'white', padding: '16px' }}>Loading...</div>;
@@ -116,31 +143,33 @@ function PlayListDetailPage() {
       {playlist ?. tracks?.total === 0 
       ? <Typography>써치</Typography> 
       : <ScrollContainer>
-      <StyledTable>
-        <TableHead>
-          <TableRow>
-            <TableCell>#</TableCell>
-            <TableCell>Title</TableCell>
-            <TableCell>Album</TableCell>
-            <TableCell>Date added</TableCell>
-            <TableCell>Duration</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {playlistItems?.pages.map((page, pageIndex) =>
-            page.items.map((item, itemIndex) => (
-              <DesktopPlaylistItem
-                key={pageIndex * PAGE_LIMIT + itemIndex + 1}
-                item={item}
-                index={pageIndex * PAGE_LIMIT + itemIndex + 1}
-              />
-            ))
-          )}
-        </TableBody>
-        <div ref={ref}>{isFetchingNextPage && <LoadingSpinner />}</div>
-      </StyledTable>
-      <div  style={{ height: '1px' }} />
+      <StyledTableContainer>
+        <StyledTable>
+          <TableHead>
+            <StyledTableRow>
+              <TableCell>#</TableCell>
+              <TableCell>Title</TableCell>
+              <TableCell>Album</TableCell>
+              <TableCell>Date added</TableCell>
+              <TableCell>Duration</TableCell>
+            </StyledTableRow>
+          </TableHead>
+          <StyledTableBody>
+            {playlistItems?.pages.map((page, pageIndex) =>
+              page.items.map((item, itemIndex) => (
+                <DesktopPlaylistItem
+                  key={pageIndex * PAGE_LIMIT + itemIndex + 1}
+                  item={item}
+                  index={pageIndex * PAGE_LIMIT + itemIndex + 1}
+                />
+              ))
+            )}
+            <div ref={ref}>{isFetchingNextPage && <LoadingSpinner />}</div>
+          </StyledTableBody>
+        </StyledTable>
+      </StyledTableContainer>
     </ScrollContainer>
+    
     }
       
     </div>

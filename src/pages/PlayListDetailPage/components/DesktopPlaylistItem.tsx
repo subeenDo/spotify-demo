@@ -9,6 +9,9 @@ interface DesktopPlaylistItemProps {
 }
 
 const HoverableRow = styled(TableRow)(({ theme }) => ({
+  display: 'table',
+  width: '100%',
+  tableLayout: 'fixed',
   '&:hover': {
     backgroundColor: theme.palette.grey[800],
     cursor: 'pointer',
