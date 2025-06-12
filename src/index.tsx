@@ -12,26 +12,26 @@ const root = ReactDOM.createRoot(
   document.getElementById('content') as HTMLElement
 );
 
-// ✅ retry 옵션은 defaultOptions 안에 넣어야 합니다
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
+      retryDelay: 1000,
+      staleTime: 1000 * 60,
     },
   },
 });
-
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider theme={theme}>
-        <CssBaseline /> {/* mui에서 기본적으로 제공하는 css 초기화 */}
+        <CssBaseline />
         <QueryClientProvider client={queryClient}>
           <App />
         </QueryClientProvider>
       </ThemeProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
 reportWebVitals();

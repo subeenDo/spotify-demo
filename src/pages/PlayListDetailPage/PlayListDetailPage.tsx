@@ -12,6 +12,12 @@ import DesktopPlaylistItem from './components/DesktopPlaylistItem';
 import { PAGE_LIMIT } from '../../configs/commonConfig';
 import { useInView } from "react-intersection-observer";
 import LoadingSpinner from '../../common/components/loadingSpinner/loadingSpinner';
+import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
+import LoginIcon from "@mui/icons-material/Login";
+import useGetCurrentUserProfile from '../../hooks/useGetCurrentUserProfile';
+import ErrorMessage from '../../common/components/ErrorMessage';
+import LoginRequiredNotice from './components/LoginRequestPage';
+import EmptyPlaylistItemWithSearch from './components/EmptyPlaylistItemWithSearch';
 
 const PlaylistHeader = styled(Grid)({
   display: "flex",
@@ -94,7 +100,8 @@ function PlayListDetailPage() {
     isFetchingNextPage,
     fetchNextPage,
   } = useGetPlaylistItems({ playlist_id: id!, limit: PAGE_LIMIT, offset: 0 });
-
+  const { data: userProfile } = useGetCurrentUserProfile();
+  const numberOfSongs = playlist?.tracks?.total ?? 0;
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
@@ -106,8 +113,13 @@ function PlayListDetailPage() {
       fetchNextPage();
     }
   }, [playlistItems, hasNextPage, isFetchingNextPage, fetchNextPage]);
-  
 
+  if (!userProfile) {
+    return <LoginRequiredNotice />;
+  }
+  // if (error) {
+  //   return <ErrorMessage errorMessage="Failed to load" />;
+  // }
   if (!id) return <Navigate to="/" />;
   if (!playlist) return <div style={{ color: 'white', padding: '16px' }}>Loading...</div>;
 
@@ -141,7 +153,7 @@ function PlayListDetailPage() {
         </Grid>
       </PlaylistHeader>
       {playlist ?. tracks?.total === 0 
-      ? <Typography>써치</Typography> 
+      ? <EmptyPlaylistItemWithSearch/>
       : <ScrollContainer>
       <StyledTableContainer>
         <StyledTable>

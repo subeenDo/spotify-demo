@@ -1,5 +1,9 @@
 import { Button, styled, Typography } from "@mui/material";
 import { useState } from "react";
+import { createPlaylist } from "../../apis/playlist.Api";
+import { getSportifyAuthUrl } from "../../utils/auth";
+import useCreatePlaylist from "../../hooks/useCreatePlaylist";
+import useGetCurrentUserProfile from "../../hooks/useGetCurrentUserProfile";
 
 const PlaylistWrap = styled("div")(({ theme }) => ({
     display: "flex",
@@ -11,6 +15,15 @@ const PlaylistWrap = styled("div")(({ theme }) => ({
 }));
 
 const EmptyPlaylist = () => {
+    const { data: userProfile } = useGetCurrentUserProfile();
+    const {mutate : createPlaylist} = useCreatePlaylist()
+    const handleCreatePlaylist = () => {
+        if (userProfile) {
+          createPlaylist({ name: "나의 플레이 리스트" });
+        } else {
+            getSportifyAuthUrl();
+        }
+      };
     return (
         <PlaylistWrap>
             <Typography variant="h2" fontWeight={700} color="secondary">
@@ -26,6 +39,7 @@ const EmptyPlaylist = () => {
                     marginTop: "20px",
                     fontWeight: 700,
                 }}
+                onClick={handleCreatePlaylist}
             >
                 Create Playlist
             </Button>

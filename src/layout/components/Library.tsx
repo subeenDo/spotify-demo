@@ -24,6 +24,9 @@ const PlaylistContainer = styled("div")(({ theme }) => ({
 
 const Library = () => {
    const { ref, inView } = useInView();
+   const { data: userProfile, isLoading: isUserLoading } =
+    useGetCurrentUserProfile();
+
   const {
     data,
     fetchNextPage,
@@ -34,17 +37,18 @@ const Library = () => {
   } = useGetCurrentUserPlaylists({ limit: 10, offset: 0 });
   
   const {data:user} = useGetCurrentUserProfile();
+
   useEffect(()=>{
     if(inView && hasNextPage && !isFetchingNextPage){
         fetchNextPage();
     }
-  },[inView])
+  },[inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   if(!user) return <EmptyPlaylist />
 
 //   console.log("ddd. ", data)
 
-  if (isLoading) {
+  if (isLoading  || isUserLoading) {
     return <LoadingSpinner />;
   }
   if (error) {

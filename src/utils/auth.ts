@@ -1,4 +1,4 @@
-import { CLIENT_ID, SCPOES } from "../configs/authConfig";
+import { CLIENT_ID, SCOPES } from "../configs/authConfig";
 import { REDIRECT_URI } from "../configs/commonConfig";
 import { AuthUrlparams } from "../models/auth";
 import { base64encode, generateRandomString, sha256 } from "./crypto";
@@ -10,7 +10,7 @@ export const getSportifyAuthUrl = async () => {
 
   const clientId = CLIENT_ID;
   const redirectUri = REDIRECT_URI;
-  const scope = SCPOES;
+  const scope = SCOPES;
 
   const authUrl = new URL("https://accounts.spotify.com/authorize");
 
