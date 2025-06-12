@@ -16,6 +16,7 @@ const ProfileContainer = styled("div")({
   alignItems: "center",
   cursor: "pointer",
   borderRadius: "8px",
+  zIndex: 1000
 });
 
 const ProfileMenu = styled(Menu)({
@@ -38,6 +39,7 @@ const NavBar = () => {
 
   // 메뉴 열기: 클릭한 버튼을 anchorEl로 저장
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    console.log("handleMenuOpen", event.currentTarget);
     setAnchorEl(event.currentTarget);
   };
 
