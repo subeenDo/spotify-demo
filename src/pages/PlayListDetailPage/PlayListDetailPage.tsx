@@ -64,7 +64,6 @@ const StyledTable = styled(Table)({
 
 function PlayListDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const observerRef = useRef<HTMLDivElement | null>(null);
   const { ref, inView } = useInView();
   const { data: playlist } = useGetPlaylist({ playlist_id: id! });
   const {
@@ -77,15 +76,10 @@ function PlayListDetailPage() {
   } = useGetPlaylistItems({ playlist_id: id!, limit: PAGE_LIMIT, offset: 0 });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
-    });
-
-    if (observerRef.current) observer.observe(observerRef.current);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage]);
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (!id) return <Navigate to="/" />;
   if (!playlist) return <div style={{ color: 'white', padding: '16px' }}>Loading...</div>;
@@ -142,10 +136,10 @@ function PlayListDetailPage() {
               />
             ))
           )}
-          <div ref={ref}>{isFetchingNextPage && <LoadingSpinner /> }</div>
         </TableBody>
+        <div ref={ref}>{isFetchingNextPage && <LoadingSpinner />}</div>
       </StyledTable>
-      <div ref={observerRef} style={{ height: '1px' }} />
+      <div  style={{ height: '1px' }} />
     </ScrollContainer>
     }
       
