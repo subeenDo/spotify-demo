@@ -2,6 +2,7 @@ import { SimplifiedAlbumObject } from "./album";
 import { ApiResponse } from "./apiResponse";
 import { Artist } from "./artist";
 import { AddedBy, ExternalIds, ExternalUrls, Followers, Image, Owner } from "./commonType";
+import { Track } from "./track";
 
 export interface GetCurrentUserPlaylistRequest {
     limit?:number;
@@ -52,31 +53,7 @@ export interface PlaylistTrack {
     track?:Track | Episode;
 }
 
-export interface Track {
-    album?:SimplifiedAlbumObject;
-    artists?:Artist[];
-    available_markets?:string[];
-    disc_number?:number;
-    duration_ms?:number;
-    explicit?:boolean;
-    external_ids?:ExternalIds;
-    external_urls?:ExternalUrls;
-    href?:string;
-    id?:string;
-    is_playable?:boolean;
-    linked_from?:{};
-    restrictions?:{
-        reason?:string;
-    };
-    name?:string;
-    popularity?:number;
 
-    preview_url?:string|null;
-    track_number?:number;
-    type?:string;
-    uri?:string;
-    is_local?:boolean;
-}
    
 export interface Episode {
     id?: string;
@@ -108,6 +85,8 @@ export interface Episode {
     };
     show:EpisodeShow;
 }
+
+export type SimplifiedEpisode = Omit<Episode, "show">
 
 export interface EpisodeShow {
     available_markets:string[];

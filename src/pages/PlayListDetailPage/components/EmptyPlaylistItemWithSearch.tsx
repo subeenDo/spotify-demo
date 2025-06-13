@@ -1,62 +1,176 @@
-import {
-    TextField,
-    Typography,
-    InputAdornment,
-    IconButton,
-    styled,
-  } from "@mui/material";
-  import React, { useState } from "react";
-  import ClearIcon from "@mui/icons-material/Clear";
-  
-  
-  const StyledClearButton = styled(IconButton)(({ theme }) => ({
-    padding: 4,
-    marginRight: 1,
-    "&:hover": {
-      backgroundColor: "rgba(30, 215, 96, 0.4)", 
-      "& svg": {
-        color: "#1ed760", 
+import {   TextField,
+  Typography,
+  InputAdornment,
+  IconButton,
+  styled,
+  CircularProgress,
+  Box, } from '@mui/material'
+import ClearIcon from "@mui/icons-material/Clear";
+import React, { useEffect, useState, useRef } from 'react'
+import { SEARCH_TYPE } from '../../../models/search';
+import useSearchItemsByKeyword from '../../../hooks/useSearchItemsByKeyword';
+import SearchResultList from './SearchResultList';
+import { PAGE_LIMIT } from '../../../configs/commonConfig';
+import { useInView } from 'react-intersection-observer';
+import { Search } from '@mui/icons-material';
+import LoadingSpinner from '../../../common/components/loadingSpinner/loadingSpinner';
+import ErrorMessage from '../../../common/components/ErrorMessage';
+
+const StyledClearButton = styled(IconButton)(({ theme }) => ({
+  padding: 4,
+  marginRight: 1,
+  "&:hover": {
+    backgroundColor: "rgba(30, 215, 96, 0.4)",
+    "& svg": {
+      color: "#1ed760",
+    },
+  },
+  "& svg": {
+    transition: "color 0.2s ease",
+  },
+}));
+
+const SearchlistContainer = styled("div")(({ theme }) => ({
+  overflowY: "auto",
+  //maxHeight: "calc(100vh - 240px)",
+  height: "calc(100dvh - 140px)", 
+  "&::-webkit-scrollbar": {
+    display: "none",
+    msOverflowStyle: "none",
+    scrollbarWidth: "none", 
+  },
+  [theme.breakpoints.down("sm")]: {
+    maxHeight: "calc(100vh - 65px - 119px)",
+  },
+}));
+
+const searchStyles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: 3,
+    backgroundColor: '#121212',
+  },
+  searchField: {
+    width: '100%',
+    maxWidth: '600px',
+    '& .MuiOutlinedInput-root': {
+      backgroundColor: '#242424',
+      borderRadius: '25px',
+      height: '48px',
+      fontSize: '16px',
+      color: 'white',
+      '& fieldset': {
+        border: '2px solid transparent',
+      },
+      '&:hover fieldset': {
+        border: '2px solid #535353',
+      },
+      '&.Mui-focused fieldset': {
+        border: '2px solid #1db954',
+      },
+      '& input': {
+        padding: '12px 16px',
+        '&::placeholder': {
+          color: '#b3b3b3',
+          opacity: 1,
+        },
       },
     },
-    "& svg": {
-      transition: "color 0.2s ease",
+    '& .MuiInputAdornment-root': {
+      marginLeft: '12px',
     },
-  }));
-  
-  const EmptyPlaylistItemWithSearch = () => {
-    const [keyword, setKeyword] = useState<string>("");
-  
-    const handleSearchKeyword = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setKeyword(event.target.value);
-    };
-  
-    const handleClear = () => {
-      setKeyword("");
-    };
-  
-    return (
-        <div style={{ maxWidth: 400, margin: "0 auto" }}>
-            <Typography variant="h1" my={4}>
-            Let's find something for your playlist!
-            </Typography>
-            <TextField
-                value={keyword}
-                onChange={handleSearchKeyword}
-                placeholder="Search..."
-                fullWidth
-                InputProps={{
-                endAdornment: keyword && (
-                    <InputAdornment position="end">
-                        <StyledClearButton onClick={handleClear} edge="end">
-                            <ClearIcon />
-                        </StyledClearButton>
-                    </InputAdornment>
-                ),
-                }}
-            />
-        </div>
-    );
+  },
+  searchIcon: {
+    color: '#b3b3b3',
+    fontSize: '24px',
+  },
+};
+
+
+const EmptyPlaylistWithSearch = () => {
+  const { ref, inView } = useInView();
+  const [keyword, setKeyword] = useState<string>("");
+  const {
+    data,  
+    isLoading, 
+    error, 
+    hasNextPage, 
+    isFetchingNextPage, 
+    fetchNextPage 
+  } = useSearchItemsByKeyword({
+      q:keyword,
+      type:[SEARCH_TYPE.Track],
+      limit: PAGE_LIMIT,
+      offset: 0
+  });
+
+  useEffect(()=>{
+    if(inView && hasNextPage && !isFetchingNextPage){
+        fetchNextPage();
+    }
+  },[inView, hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  if (isLoading ) {
+    return <LoadingSpinner />;
+  }
+  if (error) {
+    return <ErrorMessage errorMessage={error.message} />;
+  }
+
+  const handleClear = () => {
+    setKeyword("");
   };
-  
-  export default EmptyPlaylistItemWithSearch;
-  
+
+  const handleSearchKeyword = (event:React.ChangeEvent<HTMLInputElement>) =>{
+      setKeyword(event.target.value);
+  }
+  return (
+   
+      <div>
+          <Box sx={searchStyles.container}>
+          <TextField
+            value={keyword}
+            onChange={handleSearchKeyword}
+            placeholder="Search..."
+            fullWidth
+            InputProps={{
+              endAdornment: keyword && (
+                <InputAdornment position="end">
+                  <StyledClearButton onClick={handleClear} edge="end">
+                    <ClearIcon />
+                  </StyledClearButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          </Box>
+          <SearchlistContainer>
+          {data?.pages.map((item)=>{
+            if (!item.tracks) return false
+            return <SearchResultList list={item.tracks?.items} keyword={keyword}></SearchResultList>;
+          })}
+          
+          <div ref={ref}>
+            {isFetchingNextPage && (
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                padding: 2 
+              }}>
+                <LoadingSpinner />
+              </Box>
+            )}
+          </div>
+          </SearchlistContainer>
+        </div>
+          
+
+  );
+};
+
+
+
+export default EmptyPlaylistWithSearch

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Episode, PlaylistTrack, Track } from '../../../models/playlist';
+import { Episode, PlaylistTrack} from '../../../models/playlist';
 import { TableCell, TableRow } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { Track } from '../../../models/track';
 
 interface DesktopPlaylistItemProps {
   item: PlaylistTrack;
