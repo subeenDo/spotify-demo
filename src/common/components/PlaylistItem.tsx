@@ -16,6 +16,7 @@ import {
       backgroundColor: theme.palette.action.hover,
     },
   }));
+  
   const PlaylistAvatar = styled(Avatar)({
     width: "48px",
     height: "48px",

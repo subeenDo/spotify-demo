@@ -12,7 +12,6 @@ import useSearchItemsByKeyword from '../../../hooks/useSearchItemsByKeyword';
 import SearchResultList from './SearchResultList';
 import { PAGE_LIMIT } from '../../../configs/commonConfig';
 import { useInView } from 'react-intersection-observer';
-import { Search } from '@mui/icons-material';
 import LoadingSpinner from '../../../common/components/loadingSpinner/loadingSpinner';
 import ErrorMessage from '../../../common/components/ErrorMessage';
 
@@ -90,8 +89,12 @@ const searchStyles = {
 
 
 const EmptyPlaylistWithSearch = () => {
-  const { ref, inView } = useInView();
+  const [inputValue, setInputValue] = useState('');
   const [keyword, setKeyword] = useState<string>("");
+  const { ref, inView } = useInView({
+    threshold: 0.5,        
+  });
+
   const {
     data,  
     isLoading, 
@@ -105,6 +108,13 @@ const EmptyPlaylistWithSearch = () => {
       limit: PAGE_LIMIT,
       offset: 0
   });
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setKeyword(inputValue);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [inputValue]);
 
   useEffect(()=>{
     if(inView && hasNextPage && !isFetchingNextPage){
@@ -112,58 +122,53 @@ const EmptyPlaylistWithSearch = () => {
     }
   },[inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  if (isLoading ) {
-    return <LoadingSpinner />;
-  }
+
   if (error) {
     return <ErrorMessage errorMessage={error.message} />;
   }
 
   const handleClear = () => {
-    setKeyword("");
+    setInputValue('');
+    setKeyword('');
   };
 
-  const handleSearchKeyword = (event:React.ChangeEvent<HTMLInputElement>) =>{
-      setKeyword(event.target.value);
-  }
+  const handleSearchKeyword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
   return (
    
       <div>
           <Box sx={searchStyles.container}>
-          <TextField
-            value={keyword}
-            onChange={handleSearchKeyword}
-            placeholder="Search..."
-            fullWidth
-            InputProps={{
-              endAdornment: keyword && (
-                <InputAdornment position="end">
-                  <StyledClearButton onClick={handleClear} edge="end">
-                    <ClearIcon />
-                  </StyledClearButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-
+            <TextField
+              value={inputValue}
+              onChange={handleSearchKeyword}
+              placeholder="Search..."
+              fullWidth
+              InputProps={{
+                endAdornment: keyword && (
+                  <InputAdornment position="end">
+                    <StyledClearButton onClick={handleClear} edge="end">
+                      <ClearIcon />
+                    </StyledClearButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
           </Box>
           <SearchlistContainer>
-          {data?.pages.map((item)=>{
-            if (!item.tracks) return false
-            return <SearchResultList list={item.tracks?.items} keyword={keyword}></SearchResultList>;
-          })}
+            {data?.pages.map((item)=>{
+              if (!item.tracks) return false
+              return <SearchResultList list={item.tracks?.items} keyword={keyword}></SearchResultList>;
+            })}
           
-          <div ref={ref}>
-            {isFetchingNextPage && (
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                padding: 2 
-              }}>
-                <LoadingSpinner />
-              </Box>
-            )}
-          </div>
+            <div ref={ref}>
+              {isFetchingNextPage && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
+                  <LoadingSpinner />
+                </Box>
+              )}
+            </div>
           </SearchlistContainer>
         </div>
           

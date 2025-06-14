@@ -8,10 +8,14 @@ import useGetCurrentUserProfile from "../../hooks/useGetCurrentUserProfile";
 const PlaylistWrap = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
-    marginTop: "16px",
     backgroundColor: theme.palette.action.hover,
     padding: "12px",
     borderRadius: "8px",
+    width: "100%",         
+    maxWidth: "100%",      
+    overflow: "hidden",
+    boxSizing: "border-box",
+    flexShrink: 1,
 }));
 
 const EmptyPlaylist = () => {

@@ -12,8 +12,6 @@ import DesktopPlaylistItem from './components/DesktopPlaylistItem';
 import { PAGE_LIMIT } from '../../configs/commonConfig';
 import { useInView } from "react-intersection-observer";
 import LoadingSpinner from '../../common/components/loadingSpinner/loadingSpinner';
-import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
-import LoginIcon from "@mui/icons-material/Login";
 import useGetCurrentUserProfile from '../../hooks/useGetCurrentUserProfile';
 import ErrorMessage from '../../common/components/ErrorMessage';
 import LoginRequiredNotice from './components/LoginRequestPage';
@@ -24,9 +22,9 @@ const PlaylistHeader = styled(Grid)({
   alignItems: "center",
   background: "linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%)",
   padding: "16px",
-  position: "sticky",
   top: 0,
   zIndex: 10,
+  borderRadius: "8px",
 });
 
 const ImageGrid = styled(Grid)(({ theme }) => ({
@@ -55,7 +53,7 @@ const ResponsiveTypography = styled(Typography)(({ theme }) => ({
 }));
 
 const ScrollContainer = styled('div')(({ theme }) => ({
-  height: "calc(100dvh - 240px)",
+  height: "calc(100dvh - 140px)",
   overflow: "hidden", 
   [theme.breakpoints.down('sm')]: {
     height: "calc(100dvh - 160px)",
@@ -63,12 +61,10 @@ const ScrollContainer = styled('div')(({ theme }) => ({
 }));
 
 const StyledTableContainer = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
   height: '100%',
-  overflowY: 'auto',
-  scrollbarWidth: 'none',
-  '&::-webkit-scrollbar': {
-    display: 'none',
-  },
+  overflow: 'hidden',
 });
 
 const StyledTable = styled(Table)({
@@ -90,7 +86,9 @@ const StyledTableRow = styled(TableRow)({
 
 function PlayListDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { ref, inView } = useInView();
+  const { ref, inView } = useInView({
+    threshold: 0.5,        
+  });
   const { data: playlist } = useGetPlaylist({ playlist_id: id! });
   const {
     data: playlistItems,
@@ -117,14 +115,13 @@ function PlayListDetailPage() {
   if (!userProfile) {
     return <LoginRequiredNotice />;
   }
-  // if (error) {
-  //   return <ErrorMessage errorMessage="Failed to load" />;
-  // }
+
   if (!id) return <Navigate to="/" />;
   if (!playlist) return <div style={{ color: 'white', padding: '16px' }}>Loading...</div>;
 
   return (
     <div>
+      <div style={{ width: "100%",  overflow: "hidden" }}>
       <PlaylistHeader container spacing={7}>
         <ImageGrid item sm={12} md={2}>
           {playlist.images?.[0]?.url ? (
@@ -135,6 +132,7 @@ function PlayListDetailPage() {
             </DefaultImage>
           )}
         </ImageGrid>
+
         <Grid item sm={12} md={10}>
           <Box>
             <ResponsiveTypography variant="h1" color="white">
@@ -152,39 +150,47 @@ function PlayListDetailPage() {
           </Box>
         </Grid>
       </PlaylistHeader>
+      </div>
+
       {playlist ?. tracks?.total === 0 
       ? <EmptyPlaylistItemWithSearch/>
-      : <ScrollContainer>
-      <StyledTableContainer>
-        <StyledTable>
-          <TableHead>
-            <StyledTableRow>
-              <TableCell>#</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Album</TableCell>
-              <TableCell>Date added</TableCell>
-              <TableCell>Duration</TableCell>
-            </StyledTableRow>
-          </TableHead>
-          <StyledTableBody>
-            {playlistItems?.pages.map((page, pageIndex) =>
-              page.items.map((item, itemIndex) => (
-                <DesktopPlaylistItem
-                  key={pageIndex * PAGE_LIMIT + itemIndex + 1}
-                  item={item}
-                  index={pageIndex * PAGE_LIMIT + itemIndex + 1}
-                />
-              ))
-            )}
-            <div ref={ref}>{isFetchingNextPage && <LoadingSpinner />}</div>
-          </StyledTableBody>
-        </StyledTable>
-      </StyledTableContainer>
-    </ScrollContainer>
-    
-    }
-      
+      : 
+      <ScrollContainer>
+        <StyledTableContainer>
+          <StyledTable>
+            <TableHead>
+              <StyledTableRow>
+                <TableCell>#</TableCell>
+                <TableCell>Title</TableCell>
+                <TableCell>Album</TableCell>
+                <TableCell>Date added</TableCell>
+                <TableCell>Duration</TableCell>
+              </StyledTableRow>
+            </TableHead>
+          </StyledTable>
+
+          <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 140px)" }}>
+            <StyledTable>
+              <StyledTableBody>
+                {playlistItems?.pages.map((page, pageIndex) =>
+                  page.items.map((item, itemIndex) => (
+                    <DesktopPlaylistItem
+                      key={pageIndex * PAGE_LIMIT + itemIndex + 1}
+                      item={item}
+                      index={pageIndex * PAGE_LIMIT + itemIndex + 1}
+                    />
+                  ))
+                )}
+                <div ref={ref}>{isFetchingNextPage && <LoadingSpinner />}</div>
+              </StyledTableBody>
+            </StyledTable>
+          </div>
+        </StyledTableContainer>
+      </ScrollContainer>
+      }
     </div>
+      
+    
   );
 }
 

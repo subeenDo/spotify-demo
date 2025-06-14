@@ -15,6 +15,7 @@ const LibraryTitle = styled("h1")(({ theme }) => ({
     gap: "16px",
     margin: 0, 
     fontSize: "1rem", 
+    
 }));
 
 
