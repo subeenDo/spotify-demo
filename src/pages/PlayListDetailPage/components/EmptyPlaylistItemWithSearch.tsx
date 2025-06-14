@@ -92,7 +92,7 @@ const EmptyPlaylistWithSearch = () => {
   const [inputValue, setInputValue] = useState('');
   const [keyword, setKeyword] = useState<string>("");
   const { ref, inView } = useInView({
-    threshold: 0.5,        
+    threshold: 0.4,        
   });
 
   const {

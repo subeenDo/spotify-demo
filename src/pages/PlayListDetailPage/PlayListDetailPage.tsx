@@ -87,7 +87,7 @@ const StyledTableRow = styled(TableRow)({
 function PlayListDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { ref, inView } = useInView({
-    threshold: 0.5,        
+    threshold: 0.4,        
   });
   const { data: playlist } = useGetPlaylist({ playlist_id: id! });
   const {
