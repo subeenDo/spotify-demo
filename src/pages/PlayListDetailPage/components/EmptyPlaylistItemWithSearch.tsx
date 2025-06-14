@@ -92,7 +92,7 @@ const EmptyPlaylistWithSearch = () => {
   const [inputValue, setInputValue] = useState('');
   const [keyword, setKeyword] = useState<string>("");
   const { ref, inView } = useInView({
-    threshold: 0.4,        
+    threshold: 0.6,        
   });
 
   const {
@@ -116,12 +116,19 @@ const EmptyPlaylistWithSearch = () => {
     return () => clearTimeout(handler);
   }, [inputValue]);
 
-  useEffect(()=>{
-    if(inView && hasNextPage && !isFetchingNextPage){
-        fetchNextPage();
+  useEffect(() => {
+    console.log({
+      inView,
+      hasNextPage,
+      isFetchingNextPage,
+    });
+  
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      console.log('Fetching next page...');
+      fetchNextPage();
     }
-  },[inView, hasNextPage, isFetchingNextPage, fetchNextPage])
-
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  
 
   if (error) {
     return <ErrorMessage errorMessage={error.message} />;
@@ -157,18 +164,32 @@ const EmptyPlaylistWithSearch = () => {
             />
           </Box>
           <SearchlistContainer>
+            {!keyword && (
+              <Box sx={{ p: 4, textAlign: 'center', color: '#b3b3b3' }}>
+                Search for tracks to get started 🎵
+              </Box>
+            )}
             {data?.pages.map((item)=>{
               if (!item.tracks) return false
               return <SearchResultList list={item.tracks?.items} keyword={keyword}></SearchResultList>;
             })}
-          
-            <div ref={ref}>
+              {!hasNextPage && keyword && (
+                <Box sx={{ p: 2, textAlign: 'center', color: '#888' }}>
+                  <Typography variant="body1" color="text.secondary">
+                    No more results.
+                  </Typography>
+
+                </Box>
+              )}
+            <div ref={ref} style={{ height: '40px' }}>
               {isFetchingNextPage && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
                   <LoadingSpinner />
                 </Box>
               )}
+
             </div>
+
           </SearchlistContainer>
         </div>
           
